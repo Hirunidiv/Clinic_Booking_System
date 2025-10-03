@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plus, MoreVertical } from 'lucide-react';
 import AdminSideBar from '../components/AdminSideBar';
 import AdminNavbar from '../components/Navbar';
-// import AdminNavbar from '../components/AdminNavbar';
+import AddDoctorModal from '../components/AddDoctor';
 
 const DoctorGrid = () => {
   const [doctors, setDoctors] = useState([
@@ -130,9 +130,25 @@ const DoctorGrid = () => {
     setOpenMenuId(null);
   };
 
-  const handleAddDoctor = () => {
-    console.log('Add new doctor');
-  };
+  // const handleAddDoctor = () => {
+  //   console.log('Add new doctor');
+  // };
+
+  // In your DoctorGrid component:
+const [isModalOpen, setIsModalOpen] = useState(false);
+
+const handleAddDoctor = () => {
+  setIsModalOpen(true);
+};
+
+const handleModalClose = () => {
+  setIsModalOpen(false);
+};
+
+const handleDoctorSubmit = (doctorData) => {
+  console.log('New doctor data:', doctorData);
+  // Add logic to save doctor data to your backend
+};
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -222,6 +238,11 @@ const DoctorGrid = () => {
           </div>
         </div>
       </div>
+      <AddDoctorModal 
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          onSubmit={handleDoctorSubmit}
+      />
     </div>
   );
 };
