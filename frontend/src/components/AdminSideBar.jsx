@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   UserPlus, 
@@ -19,51 +20,62 @@ const AdminSideBar = ({ navigateTo }) => {
       icon: LayoutDashboard,
       label: 'Dashboard',
       active: true,
-      page: 'admin'
+      page: '/dashboard'
     },
     {
       icon: UserPlus,
-      label: 'Doctor',
+      label: 'Doctors',
       active: false,
-      page: 'admin-students'
+      page: '/doctors'
     },
     {
       icon: UserCheck,
       label: 'Patients',
       active: false,
-      page: 'admin-instructors'
+      page: '/patients'
     },
     {
       icon: CalendarCheck2,
-      label: 'Appointments',
+      label: 'Appointment',
       active: false,
-      page: 'admin-courses'
+      page: '/appointments'
     },
     {
       icon: UserCog,
       label: 'Services',
       active: false,
-      page: 'admin-revenue'
+      page: '/services'
     },
     {
       icon: MessagesSquare,
       label: 'Messages',
       active: false,
-      page: 'admin-revenue'
+      page: '/messages'
     }
   ];
 
+  const navigate = useNavigate();
+
   const handleNavigation = (page) => {
-    if (page === 'signin') {
+    if (page === '/signin') {
       // Handle logout - clear localStorage and navigate to signin
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('currentPage');
+      navigate('/signin');
+      setIsMobileMenuOpen(false);
+      return;
     }
-    
+
     if (navigateTo) {
       navigateTo(page);
     }
+
+    // navigate to the route path
+    if (page) {
+      navigate(page);
+    }
+
     setIsMobileMenuOpen(false);
   };
 
@@ -121,8 +133,8 @@ const AdminSideBar = ({ navigateTo }) => {
                 const Icon = item.icon;
                 return (
                   <li key={index}>
-                    <a
-                      href="#"
+                    <Link
+                      to={item.page}
                       className={`
                         flex items-center px-4 py-3 text-sm font-medium rounded-lg
                         transition-colors duration-200
@@ -131,14 +143,14 @@ const AdminSideBar = ({ navigateTo }) => {
                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }
                       `}
-                      onClick={() => handleNavigation(item.page)}
+                      onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Icon className={`
                         w-5 h-5 mr-3
                         ${item.active ? 'text-white' : 'text-gray-400'}
                       `} />
                       {item.label}
-                    </a>
+                    </Link>
                   </li>
                 );
               })}
@@ -146,14 +158,14 @@ const AdminSideBar = ({ navigateTo }) => {
             
             {/* Logout Button */}
             <div className="mt-8">
-              <a
-                href="#"
-                className="flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200"
-                onClick={() => handleNavigation('signin')}
+              <button
+                type="button"
+                className="w-full text-left flex items-center px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200"
+                onClick={() => handleNavigation('/signin')}
               >
                 <LogOut className="w-5 h-5 mr-3 text-gray-400" />
                 Logout
-              </a>
+              </button>
             </div>
           </nav>
         </div>
