@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(PATIENT)
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointments Appointment[]
+
+  @@map("users")
+}
+
+model Doctor {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  specialization String
+  description    String?
+  imageUrl       String?
+  phone          String?
+  experience     Int?     // years of experience
+  consultationFee Float?
+  availability   String?  // JSON string for availability schedule
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  appointments Appointment[]
+
+  @@map("doctors")
+}
+
+model Appointment {
+  id                  String            @id @default(uuid())
+  patientId           String
+  doctorId            String
+  appointmentDateTime DateTime
+  reason              String?
+  symptoms            String?
+  status              AppointmentStatus @default(BOOKED)
+  notes               String?           // Admin or doctor notes
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  patient User   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor  Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@map("appointments")
+}
+
+enum Role {
+  PATIENT
+  ADMIN
+  DOCTOR
+}
+
+enum AppointmentStatus {
+  BOOKED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  RESCHEDULED
+}
