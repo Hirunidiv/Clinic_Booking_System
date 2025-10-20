@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -5,60 +6,6 @@ generator client {
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(PATIENT)
-  phone     String?
-  address   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  appointments Appointment[]
-
-  @@map("users")
-}
-
-model Doctor {
-  id             String   @id @default(uuid())
-  name           String
-  email          String   @unique
-  specialization String
-  description    String?
-  imageUrl       String?
-  phone          String?
-  experience     Int?     // years of experience
-  consultationFee Float?
-  availability   String?  // JSON string for availability schedule
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  appointments Appointment[]
-
-  @@map("doctors")
-}
-
-model Appointment {
-  id                  String            @id @default(uuid())
-  patientId           String
-  doctorId            String
-  appointmentDateTime DateTime
-  reason              String?
-  symptoms            String?
-  status              AppointmentStatus @default(BOOKED)
-  notes               String?           // Admin or doctor notes
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-
-  patient User   @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  doctor  Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-
-  @@map("appointments")
 }
 
 enum Role {
@@ -69,8 +16,47 @@ enum Role {
 
 enum AppointmentStatus {
   BOOKED
-  CONFIRMED
-  CANCELLED
+  CANCELED
   COMPLETED
-  RESCHEDULED
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(PATIENT)
+  createdAt DateTime  @default(now())
+  // If user is doctor, we can link to Doctor table (one-to-one)
+  doctor    Doctor?   @relation("UserDoctor")
+  doctorId  Int?
+  appointments Appointment[] @relation("PatientAppointments")
+}
+
+model Doctor {
+  id          Int       @id @default(autoincrement())
+  name        String
+  specialization String
+  description String?
+  imageUrl    String?
+  // clinic hours / availability could be stored separately or as a JSON string
+  availability String? 
+  createdAt   DateTime  @default(now())
+  userId      Int? @unique
+  // link to User account (optional)
+  user        User?     @relation("UserDoctor", fields: [userId], references: [id])
+  appointments Appointment[] @relation("DoctorAppointments")
+}
+
+model Appointment {
+  id                  Int               @id @default(autoincrement())
+  patient             User              @relation("PatientAppointments", fields: [patientId], references: [id])
+  patientId           Int
+  doctor              Doctor            @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  doctorId            Int
+  appointmentDateTime DateTime
+  reason              String?
+  status              AppointmentStatus @default(BOOKED)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime?         
 }
