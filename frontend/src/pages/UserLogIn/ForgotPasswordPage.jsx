@@ -67,7 +67,7 @@ export default function ForgotPasswordPage() {
               {/* Return to Login */}
               <div className="text-center text-sm text-gray-600">
                 Return to{' '}
-                <a href="#" className="text-indigo-600 font-medium hover:underline">
+                <a href="/signin" className="text-indigo-600 font-medium hover:underline">
                   Login
                 </a>
               </div>

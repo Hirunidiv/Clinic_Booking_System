@@ -178,7 +178,7 @@ export default function RegisterPage() {
             {/* Login Link */}
             <div className="text-center text-sm text-gray-600">
               Already have an account yet?{' '}
-              <a href="#" className="text-indigo-600 font-medium hover:underline">
+              <a href="/signin" className="text-indigo-600 font-medium hover:underline">
                 Login
               </a>
             </div>

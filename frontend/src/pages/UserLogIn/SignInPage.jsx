@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { apiPost } from '../../api';
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,8 +12,32 @@ export default function SignInPage() {
   });
 
   const handleSubmit = () => {
-    console.log('Form submitted:', formData);
+    // basic validation
+    if (!formData.email || !formData.password) {
+      alert('Please provide email and password');
+      return;
+    }
+
+    apiPost('/api/auth/login', {
+      email: formData.email,
+      password: formData.password,
+    })
+      .then((res) => {
+        // save token to localStorage
+        if (res.token) {
+          localStorage.setItem('token', res.token);
+          localStorage.setItem('user', JSON.stringify(res.user || {}));
+        }
+        // redirect to appointments page
+        navigate('/appointments');
+      })
+      .catch((err) => {
+        console.error('Login failed', err);
+        alert(err.message || 'Login failed');
+      });
   };
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -109,7 +135,7 @@ export default function SignInPage() {
                     Remember Me
                   </label>
                 </div>
-                <a href="#" className="text-sm text-red-600 hover:underline font-medium">
+                <a href="/forgot-password" className="text-sm text-red-600 hover:underline font-medium">
                   Forgot password?
                 </a>
               </div>
@@ -135,7 +161,7 @@ export default function SignInPage() {
               {/* Register Link */}
               <div className="text-center text-sm text-gray-600">
                 Don't have an account yet?{' '}
-                <a href="#" className="text-indigo-600 font-medium hover:underline">
+                <a href="/register" className="text-indigo-600 font-medium hover:underline">
                   Register
                 </a>
               </div>

@@ -26,12 +26,12 @@ function App() {
           <Route path="/success" element={<SuccessPage />} />
 
           {/* Main app routes - pages render their own sidebar when needed */}
-          <Route path="/" element={<AppointmentPage />} />
+          <Route path="/" element={<SignInPage />} />
           <Route path="/appointments" element={<AppointmentPage />} />
           <Route path="/doctors" element={<DoctorGrid />} />
           <Route path="/patients" element={<PatientGrid />} />
-          {/* fallback to appointments */}
-          <Route path="*" element={<AppointmentPage />} />
+          {/* fallback to signin */}
+          <Route path="*" element={<SignInPage />} />
         </Routes>
       </div>
     </BrowserRouter>
