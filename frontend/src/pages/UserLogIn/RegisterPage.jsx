@@ -1,28 +1,71 @@
-import { useState } from 'react';
-import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react';
+"use client"
+
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Eye, EyeOff, User, Mail, Lock } from "lucide-react"
+import { apiPost } from "../../api"
 
 export default function RegisterPage() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreedToTerms: false
-  });
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    agreedToTerms: false,
+  })
 
-  const handleSubmit = () => {
-    console.log('Form submitted:', formData);
-  };
+  const handleSubmit = async () => {
+    setError("")
+
+    // Validation
+    if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword) {
+      setError("Please fill in all fields")
+      return
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match")
+      return
+    }
+
+    if (!formData.agreedToTerms) {
+      setError("Please agree to the terms and conditions")
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await apiPost("/api/auth/register", {
+        name: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        role: "PATIENT",
+      })
+
+      if (response.token) {
+        localStorage.setItem("token", response.token)
+        localStorage.setItem("user", JSON.stringify(response.user || {}))
+        navigate("/appointments")
+      }
+    } catch (err) {
+      setError(err.message || "Registration failed")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    const { name, value, type, checked } = e.target
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
+      [name]: type === "checkbox" ? checked : value,
+    }))
+  }
 
   return (
     <div className="max-h-screen flex flex-col lg:flex-row">
@@ -41,20 +84,19 @@ export default function RegisterPage() {
       <div className="lg:w-1/2 flex items-center justify-center p-6 lg:p-12 bg-gray-50">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Register
-            </h1>
-            <p className="text-gray-600 text-sm lg:text-base">
-              Please enter your details to create account
-            </p>
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Register</h1>
+            <p className="text-gray-600 text-sm lg:text-base">Please enter your details to create account</p>
           </div>
 
           <div className="space-y-5">
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>
+            )}
+
             {/* Full Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
@@ -70,9 +112,7 @@ export default function RegisterPage() {
 
             {/* Email Address */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
@@ -88,13 +128,11 @@ export default function RegisterPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
@@ -113,13 +151,11 @@ export default function RegisterPage() {
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -146,11 +182,11 @@ export default function RegisterPage() {
                 className="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-600"
               />
               <label className="ml-2 text-sm text-gray-700">
-                I agree to the{' '}
+                I agree to the{" "}
                 <a href="#" className="text-indigo-600 hover:underline">
                   Terms of Service
-                </a>{' '}
-                &{' '}
+                </a>{" "}
+                &{" "}
                 <a href="#" className="text-indigo-600 hover:underline">
                   Privacy Policy
                 </a>
@@ -160,9 +196,10 @@ export default function RegisterPage() {
             {/* Register Button */}
             <button
               onClick={handleSubmit}
-              className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl"
+              disabled={loading}
+              className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Register
+              {loading ? "Registering..." : "Register"}
             </button>
 
             {/* Divider */}
@@ -177,7 +214,7 @@ export default function RegisterPage() {
 
             {/* Login Link */}
             <div className="text-center text-sm text-gray-600">
-              Already have an account yet?{' '}
+              Already have an account yet?{" "}
               <a href="/signin" className="text-indigo-600 font-medium hover:underline">
                 Login
               </a>
@@ -185,11 +222,9 @@ export default function RegisterPage() {
           </div>
 
           {/* Copyright */}
-          <div className="mt-4 text-center text-sm text-gray-500">
-            Copyright ©2025 - Fuchsius
-          </div>
+          <div className="mt-4 text-center text-sm text-gray-500">Copyright ©2025 - Fuchsius</div>
         </div>
       </div>
     </div>
-  );
+  )
 }
