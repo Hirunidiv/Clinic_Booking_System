@@ -1,154 +1,98 @@
-import React, { useState } from 'react';
-import { Plus, MoreVertical } from 'lucide-react';
-import AdminSideBar from '../components/AdminSideBar';
-import AdminNavbar from '../components/Navbar';
-import AddDoctorModal from '../components/AddDoctor';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Plus, MoreVertical } from "lucide-react";
+import AdminSideBar from "../components/AdminSideBar";
+import AdminNavbar from "../components/Navbar";
+import AddDoctorModal from "../components/AddDoctor";
 
 const DoctorGrid = () => {
-  const [doctors, setDoctors] = useState([
-    {
-      id: 1,
-      name: "Dr. Mick Thompson",
-      specialty: "Cardiologist",
-      availability: "Mon, 20 Jan 2025",
-      image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop"
-    },
-    {
-      id: 2,
-      name: "Dr. Sarah Johnson",
-      specialty: "Orthopedic Surgeon",
-      availability: "Wed, 22 Jan 2025",
-      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop"
-    },
-    {
-      id: 3,
-      name: "Dr. Emily Carter",
-      specialty: "Pediatrician",
-      availability: "Fri, 24 Jan 2025",
-      image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&h=400&fit=crop"
-    },
-    {
-      id: 4,
-      name: "Dr. David Lee",
-      specialty: "Gynecologist",
-      availability: "Tue, 21 Jan 2025",
-      image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop"
-    },
-    {
-      id: 5,
-      name: "Dr. Anna Kim",
-      specialty: "Psychiatrist",
-      availability: "Mon, 27 Jan 2025",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop"
-    },
-    {
-      id: 6,
-      name: "Dr. John Smith",
-      specialty: "Neurologist",
-      availability: "Thu, 23 Jan 2025",
-      image: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&h=400&fit=crop"
-    },
-    {
-      id: 7,
-      name: "Dr. Lisa White",
-      specialty: "Oncologist",
-      availability: "Sat, 25 Jan 2025",
-      image: "https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=400&h=400&fit=crop"
-    },
-    {
-      id: 8,
-      name: "Dr. Patricia Brown",
-      specialty: "Pulmonologist",
-      availability: "Sun, 01 Feb 2025",
-      image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=400&fit=crop"
-    },
-    {
-      id: 9,
-      name: "Dr. Rachel Green",
-      specialty: "Urologist",
-      availability: "Tue, 28 Jan 2025",
-      image: "https://images.unsplash.com/photo-1638202993928-7267aad84c31?w=400&h=400&fit=crop"
-    },
-    {
-      id: 10,
-      name: "Dr. Michael Smith",
-      specialty: "Cardiologist",
-      availability: "Thu, 05 Feb 2025",
-      image: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop"
-    },
-    {
-      id: 11,
-      name: "Dr. Sarah Johnson",
-      specialty: "Surgeon",
-      availability: "Mon, 09 Feb 2025",
-      image: "https://images.unsplash.com/photo-1614608682850-e0d6ed316d47?w=400&h=400&fit=crop"
-    },
-    {
-      id: 12,
-      name: "Dr. Adrian White",
-      specialty: "Practitioner",
-      availability: "Sat, 25 Jan 2025",
-      image: "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?w=400&h=400&fit=crop"
-    },
-    {
-      id: 13,
-      name: "Dr. Ken Clark",
-      specialty: "Dermatologist",
-      availability: "Wed, 12 Feb 2025",
-      image: "https://images.unsplash.com/photo-1630963142243-dbf2116a0037?w=400&h=400&fit=crop"
-    },
-    {
-      id: 14,
-      name: "Dr. Oliver King",
-      specialty: "Orthopedist",
-      availability: "Fri, 14 Feb 2025",
-      image: "https://images.unsplash.com/photo-1613521541190-7e1ecd6c2b76?w=400&h=400&fit=crop"
-    },
-    {
-      id: 15,
-      name: "Dr. Avan Davis",
-      specialty: "Endocrinologist",
-      availability: "Tue, 17 Feb 2025",
-      image: "https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?w=400&h=400&fit=crop"
-    }
-  ]);
-
+  const [doctors, setDoctors] = useState([]);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // ✅ FIX: ensure API_BASE is always valid
+  const API_BASE =
+    import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== ""
+      ? import.meta.env.VITE_API_URL
+      : "http://localhost:4000"; // fallback if env variable missing
+
+  // Fetch doctors from backend
+  const fetchDoctors = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${API_BASE}/api/doctors`);
+      console.log("Fetched doctors:", res.data);
+      setDoctors(res.data);
+      setError("");
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch doctors");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
 
   const toggleMenu = (id) => {
     setOpenMenuId(openMenuId === id ? null : id);
   };
 
-  const handleEdit = (doctor) => {
-    console.log('Edit doctor:', doctor);
-    setOpenMenuId(null);
+  const handleDelete = async (doctor) => {
+    if (!window.confirm(`Delete Dr. ${doctor.name}?`)) return;
+
+    try {
+      await axios.delete(`${API_BASE}/api/doctors/${doctor.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // if auth required
+        },
+      });
+      setDoctors(doctors.filter((d) => d.id !== doctor.id));
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting doctor");
+    } finally {
+      setOpenMenuId(null);
+    }
   };
 
-  const handleDelete = (doctor) => {
-    console.log('Delete doctor:', doctor);
-    setDoctors(doctors.filter(d => d.id !== doctor.id));
-    setOpenMenuId(null);
+  const handleAddDoctor = () => setIsModalOpen(true);
+  const handleModalClose = () => setIsModalOpen(false);
+
+  const handleDoctorSubmit = async (doctorData) => {
+    try {
+      const res = await axios.post(`${API_BASE}/api/doctors`, doctorData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setDoctors([...doctors, res.data]);
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert("Error adding doctor");
+    }
   };
 
-  // const handleAddDoctor = () => {
-  //   console.log('Add new doctor');
-  // };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-600">Loading doctors...</p>
+      </div>
+    );
+  }
 
-  // In your DoctorGrid component:
-const [isModalOpen, setIsModalOpen] = useState(false);
-
-const handleAddDoctor = () => {
-  setIsModalOpen(true);
-};
-
-const handleModalClose = () => {
-  setIsModalOpen(false);
-};
-
-const handleDoctorSubmit = (doctorData) => {
-  console.log('New doctor data:', doctorData);
-  // Add logic to save doctor data to your backend
-};
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-red-600">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -161,87 +105,89 @@ const handleDoctorSubmit = (doctorData) => {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-gray-900">Doctor Grid</h1>
               <span className="px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium rounded-full">
-                Total Doctors : 565
+                Total Doctors : {doctors.length}
               </span>
             </div>
-            <button 
+            <button
               onClick={handleAddDoctor}
               className="inline-flex items-center px-4 py-2 bg-[#2E37A4] hover:bg-[#252d8a] text-white font-medium text-sm rounded-lg transition-colors duration-200"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              New Doctor
+              <Plus className="w-4 h-4 mr-2" /> New Doctor
             </button>
           </div>
 
           {/* Doctor Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-            {doctors.map((doctor) => (
-              <div 
-                key={doctor.id} 
-                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-start gap-4">
-                      <img
-                        src={doctor.image}
-                        alt={doctor.name}
-                        className="w-20 h-20 rounded-lg object-cover"
-                      />
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-1">
-                          {doctor.name}
-                        </h3>
-                        <p className="text-sm text-gray-500 mb-2">
-                          {doctor.specialty}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          Available : {doctor.availability}
-                        </p>
+            {Array.isArray(doctors) &&
+              doctors.map((doctor) => (
+                <div
+                  key={doctor.id}
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start gap-4">
+                        <img
+                          src={doctor.imageUrl || "https://placehold.co/100x100?text=No+Image"}
+                          alt={doctor.name}
+                          className="w-20 h-20 rounded-lg object-cover"
+                        />
+                        <div>
+                          <h3 className="font-semibold text-gray-900 mb-1">
+                            {doctor.name}
+                          </h3>
+                          <p className="text-sm text-gray-500 mb-2">
+                            {doctor.specialization}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            Available: {doctor.availability || "N/A"}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="relative">
-                      <button
-                        onClick={() => toggleMenu(doctor.id)}
-                        className="p-1 hover:bg-gray-100 rounded-md transition-colors"
-                      >
-                        <MoreVertical className="w-5 h-5 text-gray-400" />
-                      </button>
-                      
-                      {openMenuId === doctor.id && (
-                        <>
-                          <div 
-                            className="fixed inset-0 z-10" 
-                            onClick={() => setOpenMenuId(null)}
-                          />
-                          <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-20">
-                            <button
-                              onClick={() => handleEdit(doctor)}
-                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete(doctor)}
-                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </>
-                      )}
+
+                      <div className="relative">
+                        <button
+                          onClick={() => toggleMenu(doctor.id)}
+                          className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+                        >
+                          <MoreVertical className="w-5 h-5 text-gray-400" />
+                        </button>
+                        {openMenuId === doctor.id && (
+                          <>
+                            <div
+                              className="fixed inset-0 z-10"
+                              onClick={() => setOpenMenuId(null)}
+                            />
+                            <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-20">
+                              <button
+                                onClick={() => console.log("Edit:", doctor)}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(doctor)}
+                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </div>
-      <AddDoctorModal 
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          onSubmit={handleDoctorSubmit}
+
+      <AddDoctorModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onSubmit={handleDoctorSubmit}
+        onDoctorAdded={fetchDoctors} // refresh list after adding
       />
     </div>
   );

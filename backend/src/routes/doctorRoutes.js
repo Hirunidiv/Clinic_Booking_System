@@ -7,7 +7,7 @@ import { getAllDoctors, createDoctor, updateDoctor, deleteDoctor } from '../cont
 const router = express.Router();
 
 router.get('/', getAllDoctors);
-router.post('/', authMiddleware, roleCheck(['ADMIN']), createDoctor);
+router.post('/', createDoctor);
 router.put('/:id', authMiddleware, roleCheck(['ADMIN']), updateDoctor);
 router.delete('/:id', authMiddleware, roleCheck(['ADMIN']), deleteDoctor);
 
