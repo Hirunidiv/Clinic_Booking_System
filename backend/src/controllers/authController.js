@@ -110,6 +110,27 @@ class AuthController {
       return res.status(401).json({ message: 'Invalid token' });
     }
   }
+
+  // ✅ NEW: Get users by role (e.g., PATIENT, DOCTOR)
+  async getUsersByRole(req, res) {
+    try {
+      const { role } = req.query;
+
+      if (!role || !['PATIENT', 'DOCTOR', 'ADMIN'].includes(role)) {
+        return res.status(400).json({ message: 'Invalid or missing role parameter' });
+      }
+
+      const users = await prisma.user.findMany({
+        where: { role },
+        select: { id: true, name: true, email: true, role: true },
+      });
+
+      res.json(users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ message: 'Error fetching users', error: error.message });
+    }
+  }
 }
 
 export default new AuthController();
